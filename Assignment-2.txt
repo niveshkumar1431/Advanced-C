@@ -1,0 +1,303 @@
+Name: NIVESH KUMAR V
+Assignment 2:
+
+1.
+#include <stdio.h>
+#include <stdlib.h>
+#include <pthread.h>
+#include <unistd.h>
+
+int N;
+
+int isPrime(int num)
+{
+    if(num < 2)
+        return 0;
+
+    for(int i = 2; i * i <= num; i++)
+    {
+        if(num % i == 0)
+            return 0;
+    }
+
+    return 1;
+}
+
+void *sumPrimes(void *arg)
+{
+    int count = 0;
+    int num = 2;
+    long long sum = 0;
+
+    while(count < N)
+    {
+        if(isPrime(num))
+        {
+            sum += num;
+            count++;
+        }
+
+        num++;
+    }
+
+    printf("\nSum of first %d prime numbers = %lld\n", N, sum);
+
+    pthread_exit(NULL);
+}
+
+void *thread1(void *arg)
+{
+    for(int i = 0; i < 50; i++)
+    {
+        printf("Thread 1 running\n");
+        sleep(2);
+    }
+
+    pthread_exit(NULL);
+}
+
+void *thread2(void *arg)
+{
+    for(int i = 0; i < 34; i++)
+    {
+        printf("Thread 2 running\n");
+        sleep(3);
+    }
+
+    pthread_exit(NULL);
+}
+
+int main()
+{
+    pthread_t A, B, C;
+    printf("Enter N: ");
+    scanf("%d", &N);
+    pthread_create(&A, NULL, sumPrimes, NULL);
+    pthread_create(&B, NULL, thread1, NULL);
+    pthread_create(&C, NULL, thread2, NULL);
+    pthread_join(A, NULL);
+    pthread_join(B, NULL);
+    pthread_join(C, NULL);
+
+    return 0;
+}
+
+Example Output:
+
+nivesh@EURLTP-369:~$ gcc ass1_1.c -o program -lpthread
+nivesh@EURLTP-369:~$ ./program
+Enter N: 5
+
+Sum of first 5 prime numbers = 28
+Thread 1 running
+Thread 2 running
+Thread 1 running
+Thread 2 running
+Thread 1 running
+Thread 2 running
+Thread 1 running
+Thread 1 running
+Thread 2 running
+Thread 1 running
+Thread 2 running
+Thread 1 running
+Thread 1 running
+Thread 2 running
+Thread 1 running
+Thread 2 running
+Thread 1 running
+^C
+
+
+2.
+#include <stdio.h>
+#include <stdlib.h>
+#include <pthread.h>
+#include <unistd.h>
+#include <signal.h>
+
+void sigintHandler(int sig)/////////////////////////
+{
+    printf("\nSIGINT Received. Program continues...\n");
+}
+int N;
+
+int isPrime(int num)
+{
+    if(num < 2)
+        return 0;
+
+    for(int i = 2; i * i <= num; i++)
+    {
+        if(num % i == 0)
+            return 0;
+    }
+
+    return 1;
+}
+
+void *sumPrimes(void *arg)
+{
+    int count = 0;
+    int num = 2;
+    long long sum = 0;
+
+    while(count < N)
+    {
+        if(isPrime(num))
+        {
+            sum += num;
+            count++;
+        }
+
+        num++;
+    }
+
+    printf("\nSum of first %d prime numbers = %lld\n", N, sum);
+
+    pthread_exit(NULL);
+}
+
+void *thread1(void *arg)
+{
+    for(int i = 0; i < 50; i++)
+    {
+        printf("Thread 1 running\n");
+        sleep(2);
+    }
+
+    pthread_exit(NULL);
+}
+
+void *thread2(void *arg)
+{
+    for(int i = 0; i < 34; i++)
+    {
+        printf("Thread 2 running\n");
+        sleep(3);
+    }
+
+    pthread_exit(NULL);
+}
+
+int main()
+{
+	signal(SIGINT, sigintHandler);/////////////////////////
+    pthread_t A, B, C;
+    printf("Enter N: ");
+    scanf("%d", &N);
+    pthread_create(&A, NULL, sumPrimes, NULL);
+    pthread_create(&B, NULL, thread1, NULL);
+    pthread_create(&C, NULL, thread2, NULL);
+    pthread_join(A, NULL);
+    pthread_join(B, NULL);
+    pthread_join(C, NULL);
+
+    return 0;
+}
+
+Example Output:
+
+nivesh@EURLTP-369:~$ ./program
+Enter N: 5
+
+Sum of first 5 prime numbers = 28
+Thread 1 running
+Thread 2 running
+Thread 1 running
+Thread 2 running
+^C
+SIGINT Received. Program continues...
+Thread 1 running
+Thread 1 running
+Thread 2 running
+Thread 1 running
+Thread 2 running
+Thread 1 running
+^C
+SIGINT Received. Program continues...
+Thread 1 running
+Thread 2 running
+Thread 1 running
+Thread 2 running
+
+Time Taken Analysis:
+
+Thread A – Sum of First N Prime Numbers
+Thread A computes the sum of the first N prime numbers. The execution time depends on the value of N. For small values of N, the computation completes within a few milliseconds. As N increases, more numbers must be checked for primality, increasing the execution time.
+The prime-checking function has a complexity of O(√n) for each number. Therefore, the overall execution time increases as larger prime numbers are searched.
+
+Thread B – Periodic Message Every 2 Seconds
+Thread B prints the message:
+Thread 1 running
+every 2 seconds.
+To run for approximately 100 seconds:
+100 / 2 = 50 iterations
+Hence, the thread executes approximately 50 times and takes about 100 seconds to complete.
+
+Thread C – Periodic Message Every 3 Seconds
+Thread C prints the message:
+Thread 2 running
+every 3 seconds.
+To run for approximately 100 seconds:
+100 / 3 = 33.33 iterations
+Therefore, the thread executes approximately 34 times and takes about 102 seconds to complete.
+
+Overall Program Execution Time
+All three threads execute concurrently. Since the main thread waits for all threads using pthread_join(), the total execution time is determined by the longest-running thread.
+Thread A : Few milliseconds (depends on N)
+Thread B : ~100 seconds
+Thread C : ~102 seconds
+
+Hence, the overall program execution time is approximately: 102 seconds
+
+
+3. Exploration
+
+	1. Child Process – fork():The fork() system call is used to create a new process in Linux. When fork() is executed, the operating system creates a child process that is almost identical to the parent process. Both processes continue execution from the next line after the fork() call.
+I learned that the child process gets its own memory space, even though it initially contains the same data as the parent. The parent and child can execute independently. This mechanism is widely used in Linux for running multiple tasks simultaneously.
+One interesting thing is that fork() returns different values:
+0 in the child process
+Child PID in the parent process
+-1 if process creation fails
+This helps us identify whether the code is running in the parent or child process.
+
+	2. Handling Common Signals: Signals are software interrupts sent to a process to notify it about an event. I understood signals as a way for the operating system to communicate with running programs.
+For example:
+Pressing Ctrl + C sends a SIGINT signal.
+SIGTERM requests a process to terminate.
+SIGKILL forcefully stops a process.
+SIGSEGV occurs when a program accesses invalid memory.
+By using signal handlers, a program can respond to these signals instead of terminating immediately. This is useful for saving data, releasing resources, or displaying warning messages before exiting.
+Signal handling improves the reliability and user-friendliness of applications.
+
+	3. Exploring Different Kernel Crashes
+The kernel is the core part of the operating system. If something goes seriously wrong inside the kernel, the entire system may crash.
+While exploring this topic, I learned about Kernel Panic, which occurs when the kernel encounters a fatal error and cannot continue operation safely. Common reasons include faulty device drivers, hardware failures, invalid memory access, and corrupted system files.
+Unlike application crashes, kernel crashes can affect the whole operating system. Therefore, kernel code must be written and tested very carefully.
+Understanding kernel crashes helped me realize the importance of memory management, error handling, and system stability in operating systems.
+
+	4. Time Complexity
+Time complexity is a method used to estimate how the running time of an algorithm grows as the input size increases.
+I learned that time complexity does not measure actual execution time in seconds. Instead, it describes the growth rate of the algorithm.
+Some common complexities are:
+O(1) – Constant Time
+O(log n) – Logarithmic Time
+O(n) – Linear Time
+O(n log n) – Efficient Sorting Algorithms
+O(n²) – Nested Loops
+For example, Binary Search has O(log n) complexity and is much faster than Linear Search, which has O(n) complexity for large datasets.
+
+Studying time complexity helps in selecting efficient algorithms and improving program performance.
+
+	5. Locking Mechanisms – Mutex and Spinlock
+When multiple threads access the same shared resource, problems such as race conditions can occur. Locking mechanisms are used to prevent this issue.
+A Mutex (Mutual Exclusion Lock) allows only one thread to access a critical section at a time. If another thread tries to access the same resource, it will wait until the lock is released. Mutexes are suitable when the waiting time may be longer.
+A Spinlock also allows only one thread to access a critical section, but instead of sleeping, the waiting thread continuously checks whether the lock has become available. This is called busy waiting.
+
+From my understanding:
+Mutexes are more CPU-efficient.
+Spinlocks are faster for very short waiting periods.
+Mutexes are commonly used in application programming.
+Spinlocks are frequently used inside operating system kernels.
+Learning these mechanisms helped me understand how operating systems and multithreaded programs maintain data consistency and avoid synchronization problems.
