@@ -1,0 +1,226 @@
+Name: NIVESH KUMAR V
+Assignment 1:
+
+1.
+#include <stdio.h>
+#include <string.h>
+#define MAX_DAYS 7
+#define MAX_TASKS 3
+#define TASK_LENGTH 50
+// Structure for one day
+struct Day
+{
+    char dayName[20];
+    char tasks[MAX_TASKS][TASK_LENGTH];
+    int taskCount;
+};
+int main()
+{
+    struct Day week[MAX_DAYS] = {
+        {"Monday", {}, 0},
+        {"Tuesday", {}, 0},
+        {"Wednesday", {}, 0},
+        {"Thursday", {}, 0},
+        {"Friday", {}, 0},
+        {"Saturday", {}, 0},
+        {"Sunday", {}, 0}
+    };
+    int dayChoice, numTasks, i, j;
+    // Input tasks for each day
+    for(i = 0; i < MAX_DAYS; i++)
+    {
+        printf("\nEnter number of tasks for %s (Max 3): ",
+               week[i].dayName);
+
+        scanf("%d", &numTasks);
+        // Limit tasks to maximum 3
+        if(numTasks > MAX_TASKS)
+        {
+            numTasks = MAX_TASKS;
+        }
+        week[i].taskCount = numTasks;
+        getchar(); // Clear newline from buffer
+        // Input each task
+        for(j = 0; j < numTasks; j++)
+        {
+            printf("Enter task %d: ", j + 1);
+            fgets(week[i].tasks[j], TASK_LENGTH, stdin);
+            // Remove newline character
+            week[i].tasks[j][strcspn(week[i].tasks[j], "\n")] = '\0';
+        }
+    }
+    // Display all tasks grouped by day
+    printf("\n\n===== WEEKLY CALENDAR =====\n");
+    for(i = 0; i < MAX_DAYS; i++)
+    {
+        printf("\n%s:\n", week[i].dayName);
+        if(week[i].taskCount == 0)
+        {
+            printf("No tasks\n");
+        }
+        else
+        {
+            for(j = 0; j < week[i].taskCount; j++)
+            {
+                printf("%d. %s\n", j + 1, week[i].tasks[j]);
+            }
+        }
+    }
+    return 0;
+}
+
+Example Output:
+
+Enter number of tasks for Monday (Max 3): 2
+Enter task 1: Go to gym
+Enter task 2: Complete Assignment 1\
+
+Enter number of tasks for Tuesday (Max 3): 3
+Enter task 1: Go to gym
+Enter task 2: Covering confluence
+Enter task 3: Bike service
+
+Enter number of tasks for Wednesday (Max 3): 2
+Enter task 1: Buy grocery
+Enter task 2: Washing clothes
+
+Enter number of tasks for Thursday (Max 3): 1
+Enter task 1: Work on build server
+
+Enter number of tasks for Friday (Max 3): 1
+Enter task 1: go to gym
+
+Enter number of tasks for Saturday (Max 3): 2
+Enter task 1: Go to temple
+Enter task 2: Buy essentials
+
+Enter number of tasks for Sunday (Max 3): 1
+Enter task 1: sleep
+
+2.
+#include <stdio.h>
+#include <stdlib.h>
+
+void rearrangeEvenOdd(int *arr, int size)
+{
+    int *temp = (int *)malloc(size * sizeof(int));
+    if(temp == NULL)
+    {
+        printf("Memory allocation failed\n");
+        return;
+    }
+    int *ptr = arr;
+    int *tempPtr = temp;
+    int i;
+    /* Copy even numbers first */
+    for(i = 0; i < size; i++)
+    {
+        if((*(ptr + i) % 2) == 0)
+        {
+            *tempPtr = *(ptr + i);
+            tempPtr++;
+        }
+    }
+    /* Copy odd numbers next */
+    for(i = 0; i < size; i++)
+    {
+        if((*(ptr + i) % 2) != 0)
+        {
+            *tempPtr = *(ptr + i);
+            tempPtr++;
+        }
+    }
+    /* Copy back to original array */
+    for(i = 0; i < size; i++)
+    {
+        *(arr + i) = *(temp + i);
+    }
+    free(temp);
+}
+
+int main()
+{
+    int size;
+    printf("Enter the size:");
+    scanf("%d",&size);
+    int arr[size];
+    for(int i=0;i<size;i++)
+    {
+        printf("arr[%d]:",i);
+        scanf("%d",&arr[i]);
+    }
+    rearrangeEvenOdd(arr, size);
+    printf("Rearranged Array:\n");
+    int *p = arr;
+    for(int i = 0; i < size; i++)
+    {
+        printf("%d ", *(p + i));
+    }
+    return 0;
+}
+
+Example Output:
+
+Enter the size:8
+arr[0]:3
+arr[1]:2
+arr[2]:6
+arr[3]:4
+arr[4]:0
+arr[5]:7
+arr[6]:5
+arr[7]:8
+Rearranged Array:
+2 6 4 0 8 3 7 5 
+
+3.
+#include <stdio.h>
+
+int searchMatrix(int n, int matrix[n][n], int key)
+{
+    int row = 0;
+    int col = n - 1;
+    while(row < n && col >= 0)
+    {
+        if(matrix[row][col] == key)
+        {
+            return 1;
+        }
+        else if(matrix[row][col] > key)
+        {
+            col--;
+        }
+        else
+        {
+            row++;
+        }
+    }
+    return 0;
+}
+
+int main()
+{
+    int matrix[4][4] =
+    {
+        {10, 20, 30, 40},
+        {15, 25, 35, 45},
+        {27, 29, 37, 48},
+        {32, 33, 39, 50}
+    };
+    int key;
+    printf("Enter key to search: ");
+    scanf("%d", &key);
+    if(searchMatrix(4, matrix, key))
+    {
+        printf("Key Found\n");
+    }
+    else
+    {
+        printf("Key Not Found\n");
+    }
+    return 0;
+}
+
+Example Output:
+Enter key to search: 32
+Key Found
